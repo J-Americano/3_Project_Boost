@@ -15,9 +15,30 @@ public class Rocket : MonoBehaviour {
         rigidBody = GetComponent<Rigidbody>();
         audioSource = GetComponent<AudioSource>();
     }
-	
-	// Update is called once per frame
-	void Update ()
+
+    void OnCollisionEnter(Collision collision)
+    {
+        switch(collision.gameObject.tag)
+        {
+            case "Friendly":
+                //do nothing
+                print("Friend");
+                break;
+            case "Fuel":
+                print("Fuel added!");
+                break;
+            case "Goal":
+                print("Stage complete!");
+                break;
+            default:
+                print("Dead");
+                //kill player
+                break;
+        }
+    }
+
+    // Update is called once per frame
+    void Update ()
     {
         ShipControl();
     }
@@ -26,6 +47,24 @@ public class Rocket : MonoBehaviour {
     {
         Thrust();
         Rotate();
+    }
+
+    private void Thrust()
+    {
+        if (Input.GetKey(KeyCode.W))
+        {
+            //static thrust
+            rigidBody.AddRelativeForce(Vector3.up * MAIN_THRUST);
+
+            if (!audioSource.isPlaying)//avoids audio layering
+            {
+                audioSource.Play();
+            }
+        }
+        else
+        {
+            audioSource.Stop();
+        }
     }
 
     private void Rotate()
@@ -47,21 +86,5 @@ public class Rocket : MonoBehaviour {
 
         //Unfreeze rigid frame rotation
         rigidBody.freezeRotation = false;
-    }
-
-    private void Thrust()
-    {
-        if (Input.GetKey(KeyCode.W))
-        {
-            rigidBody.AddRelativeForce(Vector3.up * MAIN_THRUST);
-            if (!audioSource.isPlaying)//avoids audio layering
-            {
-                audioSource.Play();
-            }
-        }
-        else
-        {
-            audioSource.Stop();
-        }
     }
 }
