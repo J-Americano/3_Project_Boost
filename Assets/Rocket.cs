@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class Rocket : MonoBehaviour {
 
+    [SerializeField] float MAIN_THRUST = 50f;
+    [SerializeField] float RCS_THRUST = 100f;
+    
     Rigidbody rigidBody;
     AudioSource audioSource;
 
@@ -27,17 +30,22 @@ public class Rocket : MonoBehaviour {
 
     private void Rotate()
     {
+        //Freeze rigid frame rotation
         rigidBody.freezeRotation = true;
+
+        //Calculate dynamic rotation per frame
+        float rotationThisFrame = RCS_THRUST * Time.deltaTime;
 
         if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
         {
-            transform.Rotate(Vector3.forward);
+            transform.Rotate(Vector3.forward * rotationThisFrame);
         }
         if (Input.GetKey(KeyCode.D) && !Input.GetKey(KeyCode.A))
         {
-            transform.Rotate(-Vector3.forward);
+            transform.Rotate(-Vector3.forward * rotationThisFrame);
         }
 
+        //Unfreeze rigid frame rotation
         rigidBody.freezeRotation = false;
     }
 
@@ -45,8 +53,8 @@ public class Rocket : MonoBehaviour {
     {
         if (Input.GetKey(KeyCode.W))
         {
-            rigidBody.AddRelativeForce(Vector3.up);
-            if (!audioSource.isPlaying)
+            rigidBody.AddRelativeForce(Vector3.up * MAIN_THRUST);
+            if (!audioSource.isPlaying)//avoids audio layering
             {
                 audioSource.Play();
             }
