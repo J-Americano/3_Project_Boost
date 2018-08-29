@@ -1,14 +1,24 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Rocket : MonoBehaviour {
 
     [SerializeField] float MAIN_THRUST = 50f;
     [SerializeField] float RCS_THRUST = 100f;
-    
+
+    int level = 0;
+
     Rigidbody rigidBody;
     AudioSource audioSource;
+
+    enum State
+    {
+        Alive,
+        Dying,
+        Transcending
+    }
+
+    State state = State.Alive;
 
     // Use this for initialization
     void Start () {
@@ -18,6 +28,11 @@ public class Rocket : MonoBehaviour {
 
     void OnCollisionEnter(Collision collision)
     {
+        if(state != State.Alive)
+        {
+            return;
+        }
+
         switch(collision.gameObject.tag)
         {
             case "Friendly":
@@ -28,19 +43,44 @@ public class Rocket : MonoBehaviour {
                 print("Fuel added!");
                 break;
             case "Goal":
-                print("Stage complete!");
+                state = State.Transcending;
+                Invoke("LoadNextLevel", 1f);//parameterise time
                 break;
             default:
-                print("Dead");
+                state = State.Dying;
+                Invoke("LoadFirstLevel", 1f);
                 //kill player
                 break;
+        }
+    }
+
+    private void LoadFirstLevel()
+    {
+        level = 0;
+        SceneManager.LoadScene(level);
+    }
+
+    void LoadNextLevel()
+    {
+        if (SceneManager.sceneCount > level)
+        {
+            level++;
+            SceneManager.LoadScene(level);
+            state = State.Alive;
         }
     }
 
     // Update is called once per frame
     void Update ()
     {
-        ShipControl();
+        if (state == State.Alive)
+        {
+            ShipControl();
+        }
+        else if(audioSource.isPlaying)
+        {
+            audioSource.Stop();
+        }
     }
 
     void ShipControl()
