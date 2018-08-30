@@ -5,6 +5,9 @@ public class Rocket : MonoBehaviour {
 
     [SerializeField] float MAIN_THRUST = 50f;
     [SerializeField] float RCS_THRUST = 100f;
+    [SerializeField] AudioClip engineClip;
+    [SerializeField] AudioClip successClip;
+    [SerializeField] AudioClip deathClip;
 
     int level = 0;
 
@@ -26,6 +29,70 @@ public class Rocket : MonoBehaviour {
         audioSource = GetComponent<AudioSource>();
     }
 
+    // Update is called once per frame
+    void Update()
+    {
+        if (state == State.Alive)
+        {
+            ShipControl();
+        }
+    }
+
+    void ShipControl()
+    {
+        RespondToThrustInput();
+        RespondToRotationInput();
+    }
+
+    void RespondToThrustInput()
+    {
+        if (Input.GetKey(KeyCode.Space))
+        {
+            ApplyThrust();
+        }
+        else
+        {
+            audioSource.Stop();
+        }
+    }
+
+    void ApplyThrust()
+    {
+        //static thrust
+        rigidBody.AddRelativeForce(Vector3.up * MAIN_THRUST);
+
+        if (!audioSource.isPlaying)//avoids audio layering
+        {
+            audioSource.PlayOneShot(engineClip);
+        }
+    }
+
+    void RespondToRotationInput()
+    {
+        //Freeze rigid frame rotation
+        rigidBody.freezeRotation = true;
+
+        ApplyRotation();
+
+        //Unfreeze rigid frame rotation
+        rigidBody.freezeRotation = false;
+    }
+
+    void ApplyRotation()
+    {
+        //Calculate dynamic rotation per frame
+        float rotationThisFrame = RCS_THRUST * Time.deltaTime;
+
+        if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
+        {
+            transform.Rotate(Vector3.forward * rotationThisFrame);
+        }
+        if (Input.GetKey(KeyCode.D) && !Input.GetKey(KeyCode.A))
+        {
+            transform.Rotate(-Vector3.forward * rotationThisFrame);
+        }
+    }
+
     void OnCollisionEnter(Collision collision)
     {
         if(state != State.Alive)
@@ -43,18 +110,32 @@ public class Rocket : MonoBehaviour {
                 print("Fuel added!");
                 break;
             case "Goal":
-                state = State.Transcending;
-                Invoke("LoadNextLevel", 1f);//parameterise time
+                HandleSuccess();
                 break;
             default:
-                state = State.Dying;
-                Invoke("LoadFirstLevel", 1f);
-                //kill player
+                HandleDeath();
                 break;
         }
     }
 
-    private void LoadFirstLevel()
+    void HandleSuccess()
+    {
+        state = State.Transcending;
+        audioSource.Stop();
+        audioSource.PlayOneShot(successClip);
+        Invoke("LoadNextLevel", 1f);//parameterise time
+    }
+
+    void HandleDeath()
+    {
+        state = State.Dying;
+        audioSource.Stop();
+        audioSource.PlayOneShot(deathClip);
+        Invoke("LoadFirstLevel", 1f);
+        //kill player
+    }
+
+    void LoadFirstLevel()
     {
         level = 0;
         SceneManager.LoadScene(level);
@@ -70,61 +151,5 @@ public class Rocket : MonoBehaviour {
         }
     }
 
-    // Update is called once per frame
-    void Update ()
-    {
-        if (state == State.Alive)
-        {
-            ShipControl();
-        }
-        else if(audioSource.isPlaying)
-        {
-            audioSource.Stop();
-        }
-    }
-
-    void ShipControl()
-    {
-        Thrust();
-        Rotate();
-    }
-
-    private void Thrust()
-    {
-        if (Input.GetKey(KeyCode.W))
-        {
-            //static thrust
-            rigidBody.AddRelativeForce(Vector3.up * MAIN_THRUST);
-
-            if (!audioSource.isPlaying)//avoids audio layering
-            {
-                audioSource.Play();
-            }
-        }
-        else
-        {
-            audioSource.Stop();
-        }
-    }
-
-    private void Rotate()
-    {
-        //Freeze rigid frame rotation
-        rigidBody.freezeRotation = true;
-
-        //Calculate dynamic rotation per frame
-        float rotationThisFrame = RCS_THRUST * Time.deltaTime;
-
-        if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
-        {
-            transform.Rotate(Vector3.forward * rotationThisFrame);
-        }
-        if (Input.GetKey(KeyCode.D) && !Input.GetKey(KeyCode.A))
-        {
-            transform.Rotate(-Vector3.forward * rotationThisFrame);
-        }
-
-        //Unfreeze rigid frame rotation
-        rigidBody.freezeRotation = false;
-    }
+    
 }

@@ -164,8 +164,8 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1251178159823284}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -50.67, y: 2.08, z: -36.31}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4222716049401660}
@@ -484,7 +484,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 33cc6442ed5a1db40b98cefac479f0f8, type: 3}
+  m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -494,7 +494,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 1
+  MinDistance: 1.0568504
   MaxDistance: 500
   Pan2D: 0
   rolloffMode: 0
@@ -583,6 +583,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MAIN_THRUST: 50
   RCS_THRUST: 250
+  engineClip: {fileID: 8300000, guid: 549d26016a23a18498d20c7c4ab5a053, type: 3}
+  successClip: {fileID: 8300000, guid: 99e23d05ea3b4e247bc2afdc85603740, type: 3}
+  deathClip: {fileID: 8300000, guid: 306a185b5471a3c4e86ae43f82297ad2, type: 3}
 --- !u!135 &135912654098952924
 SphereCollider:
   m_ObjectHideFlags: 1
