@@ -5,9 +5,14 @@ public class Rocket : MonoBehaviour {
 
     [SerializeField] float MAIN_THRUST = 50f;
     [SerializeField] float RCS_THRUST = 100f;
+
     [SerializeField] AudioClip engineClip;
     [SerializeField] AudioClip successClip;
     [SerializeField] AudioClip deathClip;
+
+    [SerializeField] ParticleSystem enginePrtcl;
+    [SerializeField] ParticleSystem successPrtcl;
+    [SerializeField] ParticleSystem deathPrtcl;
 
     int level = 0;
 
@@ -53,6 +58,7 @@ public class Rocket : MonoBehaviour {
         else
         {
             audioSource.Stop();
+            enginePrtcl.Stop();
         }
     }
 
@@ -65,6 +71,7 @@ public class Rocket : MonoBehaviour {
         {
             audioSource.PlayOneShot(engineClip);
         }
+        enginePrtcl.Play();
     }
 
     void RespondToRotationInput()
@@ -123,6 +130,7 @@ public class Rocket : MonoBehaviour {
         state = State.Transcending;
         audioSource.Stop();
         audioSource.PlayOneShot(successClip);
+        successPrtcl.Play();
         Invoke("LoadNextLevel", 1f);//parameterise time
     }
 
@@ -131,6 +139,7 @@ public class Rocket : MonoBehaviour {
         state = State.Dying;
         audioSource.Stop();
         audioSource.PlayOneShot(deathClip);
+        deathPrtcl.Play();
         Invoke("LoadFirstLevel", 1f);
         //kill player
     }
@@ -138,6 +147,7 @@ public class Rocket : MonoBehaviour {
     void LoadFirstLevel()
     {
         level = 0;
+        deathPrtcl.Stop();
         SceneManager.LoadScene(level);
     }
 
@@ -146,6 +156,7 @@ public class Rocket : MonoBehaviour {
         if (SceneManager.sceneCount > level)
         {
             level++;
+            successPrtcl.Stop();
             SceneManager.LoadScene(level);
             state = State.Alive;
         }
