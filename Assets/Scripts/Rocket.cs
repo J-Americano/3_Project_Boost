@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[DisallowMultipleComponent]
 public class Rocket : MonoBehaviour {
 
     [SerializeField] float MAIN_THRUST = 50f;
@@ -13,6 +14,8 @@ public class Rocket : MonoBehaviour {
     [SerializeField] ParticleSystem enginePrtcl;
     [SerializeField] ParticleSystem successPrtcl;
     [SerializeField] ParticleSystem deathPrtcl;
+
+    [SerializeField] float levelLoadDelay = 2f;
 
     int level = 0;
 
@@ -65,7 +68,7 @@ public class Rocket : MonoBehaviour {
     void ApplyThrust()
     {
         //static thrust
-        rigidBody.AddRelativeForce(Vector3.up * MAIN_THRUST);
+        rigidBody.AddRelativeForce(Vector3.up * MAIN_THRUST * Time.deltaTime);
 
         if (!audioSource.isPlaying)//avoids audio layering
         {
@@ -131,7 +134,7 @@ public class Rocket : MonoBehaviour {
         audioSource.Stop();
         audioSource.PlayOneShot(successClip);
         successPrtcl.Play();
-        Invoke("LoadNextLevel", 1f);//parameterise time
+        Invoke("LoadNextLevel", levelLoadDelay);//parameterise time
     }
 
     void HandleDeath()
@@ -140,8 +143,7 @@ public class Rocket : MonoBehaviour {
         audioSource.Stop();
         audioSource.PlayOneShot(deathClip);
         deathPrtcl.Play();
-        Invoke("LoadFirstLevel", 1f);
-        //kill player
+        Invoke("LoadFirstLevel", levelLoadDelay);
     }
 
     void LoadFirstLevel()
