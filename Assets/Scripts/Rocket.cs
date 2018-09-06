@@ -22,6 +22,8 @@ public class Rocket : MonoBehaviour {
     Rigidbody rigidBody;
     AudioSource audioSource;
 
+    bool collisionDisabled = false;
+
     enum State
     {
         Alive,
@@ -32,7 +34,7 @@ public class Rocket : MonoBehaviour {
     State state = State.Alive;
 
     // Use this for initialization
-    void Start () {
+    void Start() {
         rigidBody = GetComponent<Rigidbody>();
         audioSource = GetComponent<AudioSource>();
     }
@@ -43,6 +45,23 @@ public class Rocket : MonoBehaviour {
         if (state == State.Alive)
         {
             ShipControl();
+        }
+
+        if (Debug.isDebugBuild)
+        {
+            RespondToDebugKeys();
+        }
+    }
+
+    void RespondToDebugKeys()
+    {
+        if (Input.GetKey(KeyCode.L))
+        {
+            LoadNextLevel();
+        }
+        else if (Input.GetKey(KeyCode.C))
+        {
+            collisionDisabled = !collisionDisabled;
         }
     }
 
@@ -105,7 +124,7 @@ public class Rocket : MonoBehaviour {
 
     void OnCollisionEnter(Collision collision)
     {
-        if(state != State.Alive)
+        if (!state.Equals(State.Alive) || collisionDisabled)
         {
             return;
         }
@@ -161,6 +180,10 @@ public class Rocket : MonoBehaviour {
             successPrtcl.Stop();
             SceneManager.LoadScene(level);
             state = State.Alive;
+        }
+        else
+        {
+            LoadFirstLevel();
         }
     }
 
