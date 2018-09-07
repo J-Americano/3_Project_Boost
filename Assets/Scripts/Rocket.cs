@@ -16,9 +16,7 @@ public class Rocket : MonoBehaviour {
     [SerializeField] ParticleSystem deathPrtcl;
 
     [SerializeField] float levelLoadDelay = 2f;
-
-    int level = 0;
-
+    
     Rigidbody rigidBody;
     AudioSource audioSource;
 
@@ -57,7 +55,7 @@ public class Rocket : MonoBehaviour {
     {
         if (Input.GetKey(KeyCode.L))
         {
-            LoadNextLevel();
+            CheckWinState();
         }
         else if (Input.GetKey(KeyCode.C))
         {
@@ -153,7 +151,7 @@ public class Rocket : MonoBehaviour {
         audioSource.Stop();
         audioSource.PlayOneShot(successClip);
         successPrtcl.Play();
-        Invoke("LoadNextLevel", levelLoadDelay);//parameterise time
+        Invoke("CheckWinState", levelLoadDelay);//parameterise time
     }
 
     void HandleDeath()
@@ -167,19 +165,15 @@ public class Rocket : MonoBehaviour {
 
     void LoadFirstLevel()
     {
-        level = 0;
         deathPrtcl.Stop();
-        SceneManager.LoadScene(level);
+        SceneManager.LoadScene(0);
     }
 
-    void LoadNextLevel()
+    void CheckWinState()
     {
-        if (SceneManager.sceneCount > level)
+        if (SceneManager.GetActiveScene().buildIndex + 1 < SceneManager.sceneCountInBuildSettings)
         {
-            level++;
-            successPrtcl.Stop();
-            SceneManager.LoadScene(level);
-            state = State.Alive;
+            LoadNextLevel();
         }
         else
         {
@@ -187,5 +181,11 @@ public class Rocket : MonoBehaviour {
         }
     }
 
-    
+    private void LoadNextLevel()
+    {
+        successPrtcl.Stop();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        state = State.Alive;
+    }
+
 }
